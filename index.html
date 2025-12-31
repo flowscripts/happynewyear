@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Premium World Clock – Warsaw Focus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      /* Dark theme defaults */
+      --bg: #050816;
+      --bg-elevated: #0b1020;
+      --bg-soft: #11172a;
+      --accent: #46b4ff;
+      --accent-soft: rgba(70, 180, 255, 0.12);
+      --accent-strong: rgba(70, 180, 255, 0.3);
+      --text-main: #f5f7ff;
+      --text-muted: #8b93b8;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.7);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-pill: 999px;
+      --blur: 18px;
+      --transition-fast: 0.18s ease-out;
+      --transition-med: 0.28s ease-out;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    [data-theme="light"] {
+      --bg: #f7f8ff;
+      --bg-elevated: #ffffff;
+      --bg-soft: #f0f2ff;
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --accent-strong: rgba(37, 99, 235, 0.3);
+      --text-main: #0b1020;
+      --text-muted: #6b7280;
+      --border-subtle: rgba(15, 23, 42, 0.08);
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 0% 0%, #182647 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, #1c334f 0, transparent 55%),
+        radial-gradient(circle at 120% -20%, #0066ff 0, transparent 60%),
+        var(--bg);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 28px 18px;
+      transition: background 0.25s ease-out, color 0.25s ease-out;
+    }
+
+    [data-theme="light"] body {
+      background: radial-gradient(circle at 0% 0%, #dbeafe 0, transparent 55%),
+                  radial-gradient(circle at 100% 100%, #e5e7eb 0, transparent 55%),
+                  var(--bg);
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1200px;
+      background: linear-gradient(135deg, rgba(12, 18, 40, 0.98), rgba(6, 9, 25, 0.98));
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(var(--blur));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  box-shadow 0.25s ease-out;
+    }
+
+    [data-theme="light"] .app-shell {
+      background: linear-gradient(135deg, #ffffff, #eef2ff);
+      border-color: rgba(15, 23, 42, 0.08);
+    }
+
+    .app-header {
+      padding: 20px 22px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color 0.25s ease-out;
+    }
+
+    [data-theme="light"] .app-header {
+      border-color: rgba(15, 23, 42, 0.06);
+    }
+
+    .app-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .app-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff, var(--accent));
+      box-shadow: 0 0 14px rgba(70, 180, 255, 0.8);
+      animation: logoPulse 2.2s ease-in-out infinite;
+    }
+
+    [data-theme="light"] .app-logo-dot {
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+    }
+
+    .app-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e4e7ff;
+    }
+
+    [data-theme="light"] .app-title {
+      color: #0f172a;
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      background: rgba(17, 22, 45, 0.95);
+      border: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  color 0.25s ease-out;
+    }
+
+    [data-theme="light"] .pill {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(148, 163, 184, 0.4);
+    }
+
+    .pill strong {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #46ffcb, #0bc57f);
+      box-shadow: 0 0 10px rgba(11, 197, 127, 0.8);
+    }
+
+    .theme-toggle {
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(5, 9, 24, 0.96);
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 6px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: background var(--transition-fast), border-color var(--transition-fast),
+                  color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    [data-theme="light"] .theme-toggle {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(148, 163, 184, 0.6);
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .filter-row {
+      padding: 8px 22px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chip {
+      padding: 6px 11px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(9, 13, 30, 0.9);
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast),
+                  color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    [data-theme="light"] .chip {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(148, 163, 184, 0.5);
+    }
+
+    .chip-active {
+      background: radial-gradient(circle at 0 0, var(--accent-soft), transparent 55%),
+                  rgba(6, 17, 35, 0.98);
+      border-color: var(--accent);
+      color: #e8f4ff;
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px var(--accent-soft);
+    }
+
+    [data-theme="light"] .chip-active {
+      background: radial-gradient(circle at 0 0, rgba(37, 99, 235, 0.18), transparent 55%),
+                  #eef2ff;
+      color: #0f172a;
+    }
+
+    .chip:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+      transform: translateY(-1px);
+    }
+
+    [data-theme="light"] .chip:hover {
+      border-color: rgba(37, 99, 235, 0.6);
+    }
+
+    .chip-select {
+      background: rgba(6, 10, 27, 0.9);
+      color: var(--text-muted);
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 11px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      outline: none;
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast),
+                  color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    [data-theme="light"] .chip-select {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(148, 163, 184, 0.6);
+    }
+
+    .chip-select:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .search-wrapper {
+      position: relative;
+      max-width: 220px;
+      flex: 1 1 auto;
+      min-width: 140px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 7px 10px 7px 26px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: rgba(6, 12, 30, 0.96);
+      color: var(--text-main);
+      font-size: 12px;
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast),
+                  background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    [data-theme="light"] .search-input {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(148, 163, 184, 0.6);
+      color: #0f172a;
+    }
+
+    .search-input::placeholder {
+      color: rgba(161, 170, 210, 0.8);
+    }
+
+    [data-theme="light"] .search-input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+      background: rgba(6, 12, 30, 0.98);
+      transform: translateY(-1px);
+    }
+
+    [data-theme="light"] .search-input:focus {
+      background: #ffffff;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(150, 170, 220, 0.8);
+      box-shadow: 0 0 0 1px rgba(2, 8, 23, 0.9);
+    }
+
+    [data-theme="light"] .search-icon {
+      border-color: rgba(148, 163, 184, 0.9);
+      box-shadow: none;
+    }
+
+    .search-icon::after {
+      content: "";
+      position: absolute;
+      right: -3px;
+      bottom: -3px;
+      width: 6px;
+      height: 1px;
+      border-radius: 999px;
+      background: rgba(150, 170, 220, 0.8);
+      transform: rotate(40deg);
+    }
+
+    [data-theme="light"] .search-icon::after {
+      background: rgba(148, 163, 184, 0.9);
+    }
+
+    .content {
+      padding: 8px 18px 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 3fr);
+      gap: 16px;
+    }
+
+    .summary-panel {
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, rgba(7, 13, 33, 0.96), rgba(9, 21, 44, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 16px 16px 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.66);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  box-shadow 0.25s ease-out;
+    }
+
+    [data-theme="light"] .summary-panel {
+      background: linear-gradient(145deg, #ffffff, #eef2ff);
+      border-color: rgba(148, 163, 184, 0.6);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    .summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-heading {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #d8defe;
+    }
+
+    [data-theme="light"] .summary-heading {
+      color: #1f2937;
+    }
+
+    .summary-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 4px 9px;
+      border-radius: var(--radius-pill);
+      background: rgba(6, 10, 27, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  color 0.25s ease-out;
+    }
+
+    [data-theme="light"] .summary-tag {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(148, 163, 184, 0.7);
+    }
+
+    .summary-time-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .summary-location {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: baseline;
+    }
+
+    .summary-location span {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .summary-main-time-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .summary-time {
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .summary-ampm {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.18em;
+    }
+
+    .summary-date {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .summary-metadata {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .summary-pill {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 9px;
+      border-radius: var(--radius-pill);
+      background: rgba(12, 19, 40, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  color 0.25s ease-out;
+    }
+
+    [data-theme="light"] .summary-pill {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(148, 163, 184, 0.5);
+    }
+
+    .summary-pill strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .summary-glow {
+      width: 100%;
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      margin-top: 2px;
+      background:
+        radial-gradient(circle at 0 0, var(--accent-soft), transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(109, 174, 255, 0.25), transparent 55%),
+        linear-gradient(125deg, rgba(8, 27, 59, 0.9), rgba(10, 21, 46, 0.9));
+      border: 1px solid rgba(70, 180, 255, 0.45);
+      box-shadow: 0 0 0 1px var(--accent-soft),
+                  0 0 24px rgba(70, 180, 255, 0.55);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  box-shadow 0.25s ease-out;
+    }
+
+    [data-theme="light"] .summary-glow {
+      background:
+        radial-gradient(circle at 0 0, rgba(37, 99, 235, 0.16), transparent 55%),
+        #e0f2fe;
+      border-color: rgba(37, 99, 235, 0.7);
+      box-shadow: 0 0 0 1px rgba(191, 219, 254, 0.8);
+    }
+
+    .summary-glow-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(222, 239, 255, 0.9);
+    }
+
+    [data-theme="light"] .summary-glow-label {
+      color: #1f2937;
+    }
+
+    .summary-glow-timezones {
+      font-size: 11px;
+      color: rgba(208, 226, 255, 0.9);
+      text-align: right;
+    }
+
+    [data-theme="light"] .summary-glow-timezones {
+      color: #1f2937;
+    }
+
+    .summary-glow-timezones span {
+      color: #8bd5ff;
+      font-weight: 600;
+    }
+
+    [data-theme="light"] .summary-glow-timezones span {
+      color: #2563eb;
+    }
+
+    .summary-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .summary-footer-text {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .summary-footer-text strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .summary-footer-badge {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 4px 8px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(5, 9, 24, 0.95);
+      color: #9ba4e6;
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  color 0.25s ease-out;
+    }
+
+    [data-theme="light"] .summary-footer-badge {
+      background: #eef2ff;
+      border-color: rgba(148, 163, 184, 0.7);
+      color: #1f2937;
+    }
+
+    .clock-grid {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at 0 0, var(--accent-soft), transparent 55%),
+                  linear-gradient(145deg, rgba(7, 10, 24, 0.96), rgba(4, 8, 20, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 12px 12px 10px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: calc(100vh - 140px);
+      overflow: hidden;
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  box-shadow 0.25s ease-out;
+    }
+
+    [data-theme="light"] .clock-grid {
+      background: linear-gradient(145deg, #ffffff, #eef2ff);
+      border-color: rgba(148, 163, 184, 0.6);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    .clock-grid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 0 2px;
+    }
+
+    .clock-grid-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #d9e0ff;
+    }
+
+    [data-theme="light"] .clock-grid-title {
+      color: #0f172a;
+    }
+
+    .clock-grid-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .clock-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(120, 134, 191, 0.7) rgba(3, 7, 18, 0.4);
+    }
+
+    .clock-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .clock-list::-webkit-scrollbar-track {
+      background: rgba(2, 6, 23, 0.9);
+      border-radius: 999px;
+    }
+
+    .clock-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #5aa4ff, #46b4ff);
+      border-radius: 999px;
+    }
+
+    [data-theme="light"] .clock-list::-webkit-scrollbar-track {
+      background: #e5e7eb;
+    }
+
+    [data-theme="light"] .clock-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #93c5fd, #60a5fa);
+    }
+
+    .clock-item {
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: radial-gradient(circle at 0 0, var(--accent-soft), transparent 55%),
+                  rgba(5, 10, 25, 0.96);
+      padding: 8px 9px;
+      display: grid;
+      grid-template-columns: minmax(0, 2.4fr) minmax(0, 1.6fr) minmax(0, 1.4fr);
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+      transition: border-color var(--transition-fast),
+                  background var(--transition-fast),
+                  transform var(--transition-fast),
+                  box-shadow var(--transition-fast),
+                  opacity 0.18s ease-out;
+      cursor: default;
+    }
+
+    [data-theme="light"] .clock-item {
+      background: linear-gradient(135deg, #ffffff, #eef2ff);
+      border-color: rgba(148, 163, 184, 0.6);
+    }
+
+    .clock-item:hover {
+      border-color: var(--accent);
+      background: radial-gradient(circle at 0 0, var(--accent-strong), transparent 55%),
+                  rgba(4, 10, 29, 0.98);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 18px rgba(70, 180, 255, 0.4);
+    }
+
+    [data-theme="light"] .clock-item:hover {
+      background: radial-gradient(circle at 0 0, rgba(37, 99, 235, 0.14), transparent 55%),
+                  #ffffff;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.12);
+    }
+
+    .clock-item.pinned {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft),
+                  0 4px 20px rgba(70, 180, 255, 0.5);
+    }
+
+    [data-theme="light"] .clock-item.pinned {
+      box-shadow: 0 0 0 1px rgba(191, 219, 254, 0.9),
+                  0 4px 20px rgba(59, 130, 246, 0.35);
+    }
+
+    .clock-main {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .clock-main-title {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .clock-flag {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .clock-name {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .clock-region {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .clock-city-list {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .clock-city-list span {
+      color: #a3b5ff;
+    }
+
+    [data-theme="light"] .clock-city-list span {
+      color: #2563eb;
+    }
+
+    .clock-time {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-items: flex-end;
+    }
+
+    .clock-time-main {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .clock-time-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .clock-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+    }
+
+    .clock-offset {
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(7, 11, 30, 0.95);
+      color: #c5d2ff;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: background 0.25s ease-out, border-color 0.25s ease-out,
+                  color 0.25s ease-out;
+    }
+
+    [data-theme="light"] .clock-offset {
+      background: #e5edff;
+      border-color: rgba(148, 163, 184, 0.8);
+      color: #1f2937;
+    }
+
+    .clock-tag {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .clock-tag-day {
+      color: #77e5a3;
+    }
+
+    .clock-tag-night {
+      color: #7fa9ff;
+    }
+
+    [data-theme="light"] .clock-tag-day {
+      color: #16a34a;
+    }
+
+    [data-theme="light"] .clock-tag-night {
+      color: #2563eb;
+    }
+
+    .clock-pin-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+      margin-left: auto;
+      transition: transform 0.15s ease-out, color 0.15s ease-out, opacity 0.15s ease-out;
+      opacity: 0.8;
+    }
+
+    .clock-pin-btn:hover {
+      transform: scale(1.15) translateY(-1px);
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    .clock-pin-btn.pinned {
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .content {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+      }
+      .clock-grid {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-header {
+        padding: 16px 14px 8px;
+      }
+
+      .filter-row {
+        padding: 6px 14px 12px;
+        gap: 8px;
+      }
+
+      .content {
+        padding: 8px 12px 14px;
+      }
+
+      .clock-item {
+        grid-template-columns: minmax(0, 2.2fr) minmax(0, 2fr);
+        grid-template-rows: auto auto;
+      }
+      .clock-meta {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+    }
+
+    @keyframes logoPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 14px rgba(70, 180, 255, 0.75);
+      }
+      50 {
+        transform: scale(1.15);
+        box-shadow: 0 0 28px rgba(70, 180, 255, 0.95);
+      }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-title-group">
+        <div class="app-title-row">
+          <div class="app-logo-dot"></div>
+          <div class="app-title">Global Timeboard</div>
+        </div>
+        <div class="app-subtitle">Warsaw‑centric world clock • Live multi‑timezone view</div>
+      </div>
+      <style>.alink2{color: white; background-color: #091b44; border-radius: 5px;}
+        .alink2:hover {background-color: #193471;}
+      </style>
+ <span><a class="alink2" href="https://flowscripts.github.io/happynewyear-old">Old Version</a></span>
+      <div class="header-controls">
+        <div class="pill">
+           
+          <div class="pill-dot"></div>
+          <span>Focused: <strong id="localLabel">(🇵🇱) Warsaw</strong></span>
+        </div>
+        <button id="themeToggle" class="theme-toggle" type="button">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="filter-row">
+      <div class="filter-chips">
+        <button class="chip chip-active" data-filter="all">All</button>
+        <button class="chip" data-filter="Americas">Americas</button>
+        <button class="chip" data-filter="Europe">Europe</button>
+        <button class="chip" data-filter="Africa">Africa</button>
+        <button class="chip" data-filter="Asia">Asia</button>
+        <button class="chip" data-filter="Oceania">Oceania</button>
+
+        <select id="sortSelect" class="chip-select">
+          <option value="none">Sort: None</option>
+          <option value="past">Past → Future</option>
+          <option value="future">Future → Past</option>
+          <option value="alpha">Alphabetical</option>
+          <option value="offset">UTC Offset</option>
+        </select>
+      </div>
+
+      <div class="search-wrapper">
+        <div class="search-icon"></div>
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          placeholder="Search city, region or offset…"
+        />
+      </div>
+    </div>
+
+    <main class="content">
+      <section class="summary-panel">
+        <div class="summary-header">
+          <div class="summary-heading">Focused timezone</div><br>
+          <img width="60vh" style="border-radius: 100%;" src="https://c.tenor.com/DIBZH5Yaz00AAAAC/tenor.gif" alt="error"><br>
+          <div class="summary-tag" id="summaryRegion">Europe</div>
+        </div>
+
+        <div class="summary-time-block">
+          <div class="summary-location">
+            <span id="summaryZone">(🇵🇱) Warsaw</span>
+          </div>
+
+          <div class="summary-main-time-row">
+            <div class="summary-time">
+              <span id="summaryTime">--:--:--</span>
+              <span class="summary-ampm" id="summaryAmPm">--</span>
+            </div>
+            <div class="summary-date" id="summaryDate">--</div>
+          </div>
+
+          <div class="summary-metadata">
+            <div class="summary-pill">
+              <span>UTC offset</span>
+              <strong id="summaryOffset">--</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Status</span>
+              <strong id="summaryStatus">--</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Major cities</span>
+              <strong id="summaryCities">--</strong>
+            </div>
+          </div>
+
+          <div class="summary-glow">
+            <div class="summary-glow-label">World overview</div>
+            <div class="summary-glow-timezones">
+              Tracking <span id="totalZones">--</span> timezones<br />
+              Across <span id="totalCities">--</span>+ major cities
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-footer">
+          <div class="summary-footer-text">
+            Hover or pin rows to preview • <strong>Sort & filter to explore time</strong>
+          </div>
+          <div class="summary-footer-badge">Live sync • 1s refresh</div>
+        </div>
+
+
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/World_Time_Zones_Map.png/1024px-World_Time_Zones_Map.png" alt="Error">
+        
+      </section>
+
+
+
+
+
+
+
+      <section class="clock-grid">
+        <div class="clock-grid-header">
+          <div class="clock-grid-title">World clock</div>
+          <div class="clock-grid-sub" id="clockGridSub">Loading zones…</div>
+        </div>
+
+        <ul class="clock-list" id="clockList"></ul>
+      </section>
+    </main>
+  </div>
+
+<script>
+  const MAIN_ZONE = "Europe/Warsaw";
+
+  const timezones = [
+    // Europe (with Warsaw)
+    {
+      id: "Europe/Warsaw",
+      label: "(🇵🇱) Warsaw",
+      region: "Europe",
+      flag: "🇵🇱",
+      cities: ["Warsaw", "Kraków", "Gdańsk"],
+      iana: "Europe/Warsaw",
+    },
+    {
+      id: "Europe/London",
+      label: "(🇬🇧) London",
+      region: "Europe",
+      flag: "🇬🇧",
+      cities: ["London", "Dublin", "Lisbon"],
+      iana: "Europe/London",
+    },
+    {
+      id: "Europe/Paris",
+      label: "(🇫🇷) Paris / Central Europe",
+      region: "Europe",
+      flag: "🇫🇷",
+      cities: ["Paris", "Berlin", "Rome"],
+      iana: "Europe/Paris",
+    },
+    {
+      id: "Europe/Madrid",
+      label: "(🇪🇸) Madrid",
+      region: "Europe",
+      flag: "🇪🇸",
+      cities: ["Madrid", "Barcelona", "Valencia"],
+      iana: "Europe/Madrid",
+    },
+    {
+      id: "Europe/Amsterdam",
+      label: "(🇳🇱) Benelux",
+      region: "Europe",
+      flag: "🇳🇱",
+      cities: ["Amsterdam", "Brussels", "Luxembourg"],
+      iana: "Europe/Amsterdam",
+    },
+    {
+      id: "Europe/Zurich",
+      label: "(🇨🇭) Zurich",
+      region: "Europe",
+      flag: "🇨🇭",
+      cities: ["Zurich", "Geneva", "Basel"],
+      iana: "Europe/Zurich",
+    },
+    {
+      id: "Europe/Athens",
+      label: "(🇬🇷) Athens",
+      region: "Europe",
+      flag: "🇬🇷",
+      cities: ["Athens", "Bucharest", "Sofia"],
+      iana: "Europe/Athens",
+    },
+    {
+      id: "Europe/Moscow",
+      label: "(🇷🇺) Moscow",
+      region: "Europe",
+      flag: "🇷🇺",
+      cities: ["Moscow", "St Petersburg", "Kazan"],
+      iana: "Europe/Moscow",
+    },
+
+    // Americas
+    {
+      id: "America/New_York",
+      label: "(🇺🇸) New York",
+      region: "Americas",
+      flag: "🇺🇸",
+      cities: ["New York", "Toronto", "Miami"],
+      iana: "America/New_York",
+    },
+    {
+      id: "America/Chicago",
+      label: "(🇺🇸) Chicago",
+      region: "Americas",
+      flag: "🇺🇸",
+      cities: ["Chicago", "Houston", "Dallas"],
+      iana: "America/Chicago",
+    },
+    {
+      id: "America/Denver",
+      label: "(🇺🇸) Denver",
+      region: "Americas",
+      flag: "🇺🇸",
+      cities: ["Denver", "Salt Lake City", "Calgary"],
+      iana: "America/Denver",
+    },
+    {
+      id: "America/Los_Angeles",
+      label: "(🇺🇸) Los Angeles",
+      region: "Americas",
+      flag: "🇺🇸",
+      cities: ["Los Angeles", "San Francisco", "Seattle"],
+      iana: "America/Los_Angeles",
+    },
+    {
+      id: "America/Phoenix",
+      label: "(🇺🇸) Arizona",
+      region: "Americas",
+      flag: "🇺🇸",
+      cities: ["Phoenix", "Tucson", "Mesa"],
+      iana: "America/Phoenix",
+    },
+    {
+      id: "America/Mexico_City",
+      label: "(🇲🇽) Mexico City",
+      region: "Americas",
+      flag: "🇲🇽",
+      cities: ["Mexico City", "Guadalajara", "Monterrey"],
+      iana: "America/Mexico_City",
+    },
+    {
+      id: "America/Bogota",
+      label: "(🇨🇴) Colombia",
+      region: "Americas",
+      flag: "🇨🇴",
+      cities: ["Bogotá", "Medellín", "Cali"],
+      iana: "America/Bogota",
+    },
+    {
+      id: "America/Lima",
+      label: "(🇵🇪) Peru",
+      region: "Americas",
+      flag: "🇵🇪",
+      cities: ["Lima", "Arequipa", "Cusco"],
+      iana: "America/Lima",
+    },
+    {
+      id: "America/Sao_Paulo",
+      label: "(🇧🇷) São Paulo",
+      region: "Americas",
+      flag: "🇧🇷",
+      cities: ["São Paulo", "Rio de Janeiro", "Brasília"],
+      iana: "America/Sao_Paulo",
+    },
+    {
+      id: "America/Argentina/Buenos_Aires",
+      label: "(🇦🇷) Buenos Aires",
+      region: "Americas",
+      flag: "🇦🇷",
+      cities: ["Buenos Aires", "Córdoba", "Rosario"],
+      iana: "America/Argentina/Buenos_Aires",
+    },
+    {
+      id: "America/Santiago",
+      label: "(🇨🇱) Santiago",
+      region: "Americas",
+      flag: "🇨🇱",
+      cities: ["Santiago", "Valparaíso", "Concepción"],
+      iana: "America/Santiago",
+    },
+    {
+      id: "America/Halifax",
+      label: "(🇨🇦) Atlantic Canada",
+      region: "Americas",
+      flag: "🇨🇦",
+      cities: ["Halifax", "Moncton", "Saint John"],
+      iana: "America/Halifax",
+    },
+    {
+      id: "America/St_Johns",
+      label: "(🇨🇦) Newfoundland",
+      region: "Americas",
+      flag: "🇨🇦",
+      cities: ["St. John's", "Mount Pearl", "Paradise"],
+      iana: "America/St_Johns",
+    },
+
+    // Africa
+    {
+      id: "Africa/Casablanca",
+      label: "(🇲🇦) Morocco",
+      region: "Africa",
+      flag: "🇲🇦",
+      cities: ["Casablanca", "Rabat", "Marrakesh"],
+      iana: "Africa/Casablanca",
+    },
+    {
+      id: "Africa/Lagos",
+      label: "(🇳🇬) West Africa",
+      region: "Africa",
+      flag: "🇳🇬",
+      cities: ["Lagos", "Abuja", "Accra"],
+      iana: "Africa/Lagos",
+    },
+    {
+      id: "Africa/Johannesburg",
+      label: "(🇿🇦) South Africa",
+      region: "Africa",
+      flag: "🇿🇦",
+      cities: ["Johannesburg", "Cape Town", "Pretoria"],
+      iana: "Africa/Johannesburg",
+    },
+    {
+      id: "Africa/Nairobi",
+      label: "(🇰🇪) East Africa",
+      region: "Africa",
+      flag: "🇰🇪",
+      cities: ["Nairobi", "Addis Ababa", "Dar es Salaam"],
+      iana: "Africa/Nairobi",
+    },
+
+    // Middle East & Asia
+    {
+      id: "Asia/Dubai",
+      label: "(🇦🇪) Dubai",
+      region: "Asia",
+      flag: "🇦🇪",
+      cities: ["Dubai", "Abu Dhabi", "Doha"],
+      iana: "Asia/Dubai",
+    },
+    {
+      id: "Asia/Tehran",
+      label: "(🇮🇷) Tehran",
+      region: "Asia",
+      flag: "🇮🇷",
+      cities: ["Tehran", "Mashhad", "Isfahan"],
+      iana: "Asia/Tehran",
+    },
+    {
+      id: "Asia/Karachi",
+      label: "(🇵🇰) Karachi",
+      region: "Asia",
+      flag: "🇵🇰",
+      cities: ["Karachi", "Lahore", "Islamabad"],
+      iana: "Asia/Karachi",
+    },
+    {
+      id: "Asia/Kolkata",
+      label: "(🇮🇳) India",
+      region: "Asia",
+      flag: "🇮🇳",
+      cities: ["Delhi", "Mumbai", "Bengaluru"],
+      iana: "Asia/Kolkata",
+    },
+    {
+      id: "Asia/Dhaka",
+      label: "(🇧🇩) Bangladesh",
+      region: "Asia",
+      flag: "🇧🇩",
+      cities: ["Dhaka", "Chittagong", "Khulna"],
+      iana: "Asia/Dhaka",
+    },
+    {
+      id: "Asia/Bangkok",
+      label: "(🇹🇭) Bangkok",
+      region: "Asia",
+      flag: "🇹🇭",
+      cities: ["Bangkok", "Ho Chi Minh City", "Phnom Penh"],
+      iana: "Asia/Bangkok",
+    },
+    {
+      id: "Asia/Jakarta",
+      label: "(🇮🇩) Jakarta",
+      region: "Asia",
+      flag: "🇮🇩",
+      cities: ["Jakarta", "Bandung", "Surabaya"],
+      iana: "Asia/Jakarta",
+    },
+    {
+      id: "Asia/Singapore",
+      label: "(🇸🇬) Singapore",
+      region: "Asia",
+      flag: "🇸🇬",
+      cities: ["Singapore", "Kuala Lumpur", "Batam"],
+      iana: "Asia/Singapore",
+    },
+    {
+      id: "Asia/Hong_Kong",
+      label: "(🇭🇰) Hong Kong",
+      region: "Asia",
+      flag: "🇭🇰",
+      cities: ["Hong Kong", "Guangzhou", "Shenzhen"],
+      iana: "Asia/Hong_Kong",
+    },
+    {
+      id: "Asia/Shanghai",
+      label: "(🇨🇳) China",
+      region: "Asia",
+      flag: "🇨🇳",
+      cities: ["Shanghai", "Beijing", "Tianjin"],
+      iana: "Asia/Shanghai",
+    },
+    {
+      id: "Asia/Tokyo",
+      label: "(🇯🇵) Tokyo",
+      region: "Asia",
+      flag: "🇯🇵",
+      cities: ["Tokyo", "Osaka", "Nagoya"],
+      iana: "Asia/Tokyo",
+    },
+    {
+      id: "Asia/Seoul",
+      label: "(🇰🇷) Seoul",
+      region: "Asia",
+      flag: "🇰🇷",
+      cities: ["Seoul", "Busan", "Incheon"],
+      iana: "Asia/Seoul",
+    },
+
+    // Oceania
+    {
+      id: "Australia/Perth",
+      label: "(🇦🇺) Perth",
+      region: "Oceania",
+      flag: "🇦🇺",
+      cities: ["Perth", "Denpasar", "Makassar"],
+      iana: "Australia/Perth",
+    },
+    {
+      id: "Australia/Adelaide",
+      label: "(🇦🇺) Adelaide",
+      region: "Oceania",
+      flag: "🇦🇺",
+      cities: ["Adelaide", "Darwin", "Whyalla"],
+      iana: "Australia/Adelaide",
+    },
+    {
+      id: "Australia/Sydney",
+      label: "(🇦🇺) Sydney",
+      region: "Oceania",
+      flag: "🇦🇺",
+      cities: ["Sydney", "Melbourne", "Canberra"],
+      iana: "Australia/Sydney",
+    },
+    {
+      id: "Pacific/Auckland",
+      label: "(🇳🇿) Auckland",
+      region: "Oceania",
+      flag: "🇳🇿",
+      cities: ["Auckland", "Wellington", "Christchurch"],
+      iana: "Pacific/Auckland",
+    },
+    {
+      id: "Pacific/Fiji",
+      label: "(🇫🇯) Fiji",
+      region: "Oceania",
+      flag: "🇫🇯",
+      cities: ["Suva", "Nadi", "Lautoka"],
+      iana: "Pacific/Fiji",
+    },
+    {
+      id: "Pacific/Honolulu",
+      label: "(🇺🇸) Honolulu",
+      region: "Oceania",
+      flag: "🇺🇸",
+      cities: ["Honolulu", "Maui", "Kona"],
+      iana: "Pacific/Honolulu",
+    },
+    {
+      id: "Pacific/Apia",
+      label: "(🇼🇸) Samoa",
+      region: "Oceania",
+      flag: "🇼🇸",
+      cities: ["Apia", "Vaitele", "Faleula"],
+      iana: "Pacific/Apia",
+    },
+  ];
+
+  const bodyEl = document.body;
+  const themeToggleBtn = document.getElementById("themeToggle");
+  const themeIcon = document.getElementById("themeIcon");
+  const themeLabel = document.getElementById("themeLabel");
+
+  const clockList = document.getElementById("clockList");
+  const clockGridSub = document.getElementById("clockGridSub");
+  const totalZonesEl = document.getElementById("totalZones");
+  const totalCitiesEl = document.getElementById("totalCities");
+
+  const summaryZone = document.getElementById("summaryZone");
+  const summaryRegion = document.getElementById("summaryRegion");
+  const summaryTime = document.getElementById("summaryTime");
+  const summaryAmPm = document.getElementById("summaryAmPm");
+  const summaryDate = document.getElementById("summaryDate");
+  const summaryOffset = document.getElementById("summaryOffset");
+  const summaryStatus = document.getElementById("summaryStatus");
+  const summaryCities = document.getElementById("summaryCities");
+
+  const chipButtons = Array.from(document.querySelectorAll(".chip"));
+  const searchInput = document.getElementById("searchInput");
+  const sortSelect = document.getElementById("sortSelect");
+
+  let currentFilter = "all";
+  let currentSearch = "";
+  let currentSort = "none";
+  let focusedZoneId = null;
+  const pinnedSet = new Set();
+
+  const totalZones = timezones.length;
+  const totalCities = timezones.reduce((acc, tz) => acc + tz.cities.length, 0);
+  totalZonesEl.textContent = totalZones;
+  totalCitiesEl.textContent = totalCities;
+  clockGridSub.textContent = `Showing ${totalZones} timezones • ${totalCities}+ cities`;
+
+  function formatTimeInZone(zoneId, options = {}) {
+    const date = options.date || new Date();
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: zoneId,
+    });
+    return formatter.format(date);
+  }
+
+  function formatAmPm(zoneId, options = {}) {
+    const date = options.date || new Date();
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      hour12: true,
+      timeZone: zoneId,
+    });
+    return formatter.format(date).split(" ")[1] || "";
+  }
+
+  function formatDateInZone(zoneId) {
+    const date = new Date();
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: zoneId,
+    });
+    return formatter.format(date);
+  }
+
+  // Robust UTC offset using formatToParts (avoids locale glitches)
+  function getUtcOffset(zoneId) {
+    const date = new Date();
+
+    const utcFormatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "UTC",
+      hourCycle: "h23",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const tzFormatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: zoneId,
+      hourCycle: "h23",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const uParts = utcFormatter.formatToParts(date);
+    const tParts = tzFormatter.formatToParts(date);
+
+    const get = (parts, type) => Number(parts.find(p => p.type === type).value);
+
+    const utcYear = get(uParts, "year");
+    const utcMonth = get(uParts, "month");
+    const utcDay = get(uParts, "day");
+    const utcHour = get(uParts, "hour");
+    const utcMinute = get(uParts, "minute");
+
+    const tzYear = get(tParts, "year");
+    const tzMonth = get(tParts, "month");
+    const tzDay = get(tParts, "day");
+    const tzHour = get(tParts, "hour");
+    const tzMinute = get(tParts, "minute");
+
+    const utcMs = Date.UTC(utcYear, utcMonth - 1, utcDay, utcHour, utcMinute);
+    const tzMs = Date.UTC(tzYear, tzMonth - 1, tzDay, tzHour, tzMinute);
+
+    const diffMinutes = Math.round((tzMs - utcMs) / 60000);
+
+    const sign = diffMinutes >= 0 ? "+" : "-";
+    const absMinutes = Math.abs(diffMinutes);
+    const hours = String(Math.floor(absMinutes / 60)).padStart(2, "0");
+    const minutes = String(absMinutes % 60).padStart(2, "0");
+    return `UTC${sign}${hours}:${minutes}`;
+  }
+
+  function isDaytime(zoneId) {
+    const date = new Date();
+    const hours = Number(
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: zoneId,
+        hourCycle: "h23",
+        hour: "2-digit",
+      }).format(date),
+    );
+    return hours >= 6 && hours < 18;
+  }
+
+  function createClockItem(tz) {
+    const li = document.createElement("li");
+    li.className = "clock-item";
+    li.dataset.region = tz.region;
+    li.dataset.id = tz.id;
+    li.dataset.iana = tz.iana;
+    li.dataset.label = tz.label.toLowerCase();
+    li.dataset.cities = tz.cities.join(" ").toLowerCase();
+    li.dataset.offset = getUtcOffset(tz.iana).toLowerCase();
+
+    const main = document.createElement("div");
+    main.className = "clock-main";
+
+    const title = document.createElement("div");
+    title.className = "clock-main-title";
+
+    const flagSpan = document.createElement("span");
+    flagSpan.className = "clock-flag";
+    flagSpan.textContent = tz.flag;
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "clock-name";
+    nameSpan.textContent = tz.label;
+
+    const regionSpan = document.createElement("span");
+    regionSpan.className = "clock-region";
+    regionSpan.textContent = tz.region;
+
+    title.appendChild(flagSpan);
+    title.appendChild(nameSpan);
+    title.appendChild(regionSpan);
+
+    const pinBtn = document.createElement("button");
+    pinBtn.type = "button";
+    pinBtn.className = "clock-pin-btn";
+    pinBtn.innerHTML = "☆";
+    title.appendChild(pinBtn);
+
+    const cityList = document.createElement("div");
+    cityList.className = "clock-city-list";
+    const cityText = tz.cities.map((c, index) =>
+      index < 3 ? `<span>${c}</span>` : c
+    );
+    cityList.innerHTML = cityText.join(" • ");
+
+    main.appendChild(title);
+    main.appendChild(cityList);
+
+    const time = document.createElement("div");
+    time.className = "clock-time";
+
+    const timeMain = document.createElement("div");
+    timeMain.className = "clock-time-main";
+    timeMain.textContent = "--:--:--";
+
+    const timeSub = document.createElement("div");
+    timeSub.className = "clock-time-sub";
+    timeSub.textContent = "--";
+
+    time.appendChild(timeMain);
+    time.appendChild(timeSub);
+
+    const meta = document.createElement("div");
+    meta.className = "clock-meta";
+
+    const offset = document.createElement("div");
+    offset.className = "clock-offset";
+    offset.textContent = getUtcOffset(tz.iana);
+
+    const tag = document.createElement("div");
+    tag.className = "clock-tag";
+    const day = isDaytime(tz.iana);
+    tag.textContent = day ? "Daytime" : "Night";
+    tag.classList.add(day ? "clock-tag-day" : "clock-tag-night");
+
+    meta.appendChild(offset);
+    meta.appendChild(tag);
+
+    li.appendChild(main);
+    li.appendChild(time);
+    li.appendChild(meta);
+
+    li.addEventListener("mouseenter", () => {
+      focusedZoneId = tz.id;
+      updateSummary(tz);
+    });
+
+    li.addEventListener("mouseleave", () => {
+      focusedZoneId = null;
+      updateSummary();
+    });
+
+    pinBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (pinnedSet.has(tz.id)) {
+        pinnedSet.delete(tz.id);
+        li.classList.remove("pinned");
+        pinBtn.classList.remove("pinned");
+        pinBtn.innerHTML = "☆";
+      } else {
+        pinnedSet.add(tz.id);
+        li.classList.add("pinned");
+        pinBtn.classList.add("pinned");
+        pinBtn.innerHTML = "★";
+      }
+      applyFilterSortSearchAndRebuild();
+    });
+
+    li._timeMain = timeMain;
+    li._timeSub = timeSub;
+    li._offset = offset;
+    li._tag = tag;
+    li._pinBtn = pinBtn;
+
+    if (pinnedSet.has(tz.id)) {
+      li.classList.add("pinned");
+      pinBtn.classList.add("pinned");
+      pinBtn.innerHTML = "★";
+    }
+
+    return li;
+  }
+
+  function updateClockItem(li) {
+    const zoneId = li.dataset.iana;
+    const tz = timezones.find(t => t.iana === zoneId);
+    if (!tz) return;
+
+    const now = new Date();
+    const time24 = formatTimeInZone(zoneId, { date: now });
+    const ampm = formatAmPm(zoneId, { date: now });
+
+    li._timeMain.textContent = time24;
+    li._timeSub.textContent = ampm;
+
+    const newOffset = getUtcOffset(zoneId);
+    if (li._offset.textContent !== newOffset) {
+      li._offset.textContent = newOffset;
+      li.dataset.offset = newOffset.toLowerCase();
+    }
+
+    const day = isDaytime(zoneId);
+    li._tag.textContent = day ? "Daytime" : "Night";
+    li._tag.classList.toggle("clock-tag-day", day);
+    li._tag.classList.toggle("clock-tag-night", !day);
+  }
+
+  function updateSummary(tzOverride) {
+    const tz =
+      tzOverride ||
+      timezones.find(z => z.iana === MAIN_ZONE) ||
+      timezones[0];
+
+    const now = new Date();
+    const time24 = formatTimeInZone(tz.iana, { date: now });
+    const ampm = formatAmPm(tz.iana, { date: now });
+    const dateStr = formatDateInZone(tz.iana);
+    const offset = getUtcOffset(tz.iana);
+    const day = isDaytime(tz.iana);
+
+    summaryZone.textContent = tz.label;
+    summaryRegion.textContent = tz.region;
+    summaryTime.textContent = time24;
+    summaryAmPm.textContent = ampm;
+    summaryDate.textContent = dateStr;
+    summaryOffset.textContent = offset;
+    summaryCities.textContent = tz.cities.slice(0, 3).join(" • ");
+    summaryStatus.textContent = day ? "Daytime" : "Night";
+  }
+
+  function buildClockList(currentTZs) {
+    clockList.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+    currentTZs.forEach(tz => {
+      const item = createClockItem(tz);
+      fragment.appendChild(item);
+    });
+    clockList.appendChild(fragment);
+  }
+
+  function getFilteredSortedTimezones() {
+    const query = currentSearch.trim().toLowerCase();
+
+    let filtered = timezones.filter(tz => {
+      const regionMatch = currentFilter === "all" || tz.region === currentFilter;
+      const label = tz.label.toLowerCase();
+      const cities = tz.cities.join(" ").toLowerCase();
+      const offset = getUtcOffset(tz.iana).toLowerCase();
+
+      const queryMatch =
+        !query ||
+        label.includes(query) ||
+        cities.includes(query) ||
+        offset.includes(query);
+
+      return regionMatch && queryMatch;
+    });
+
+    let pinned = filtered.filter(tz => pinnedSet.has(tz.id));
+    let nonPinned = filtered.filter(tz => !pinnedSet.has(tz.id));
+
+    const sortFn = (a, b) => {
+      if (currentSort === "alpha") {
+        return a.label.localeCompare(b.label);
+      } else if (currentSort === "offset") {
+        const offA = getUtcOffset(a.iana);
+        const offB = getUtcOffset(b.iana);
+        return offA.localeCompare(offB);
+      } else if (currentSort === "past" || currentSort === "future") {
+        const tA = formatTimeInZone(a.iana);
+        const tB = formatTimeInZone(b.iana);
+        return currentSort === "past"
+          ? tA.localeCompare(tB)
+          : tB.localeCompare(tA);
+      }
+      return 0;
+    };
+
+    if (currentSort !== "none") {
+      pinned.sort(sortFn);
+      nonPinned.sort(sortFn);
+    }
+
+    const all = [...pinned, ...nonPinned];
+    clockGridSub.textContent = `Showing ${all.length} / ${totalZones} timezones`;
+    return all;
+  }
+
+  function applyFilterSortSearchAndRebuild() {
+    const tzs = getFilteredSortedTimezones();
+    buildClockList(tzs);
+  }
+
+  // Theme toggle
+  themeToggleBtn.addEventListener("click", () => {
+    const current = bodyEl.getAttribute("data-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    bodyEl.setAttribute("data-theme", next);
+    if (next === "dark") {
+      themeIcon.textContent = "🌙";
+      themeLabel.textContent = "Dark";
+    } else {
+      themeIcon.textContent = "☀️";
+      themeLabel.textContent = "Light";
+    }
+  });
+
+  chipButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      chipButtons.forEach(b => b.classList.remove("chip-active"));
+      btn.classList.add("chip-active");
+      currentFilter = btn.dataset.filter || "all";
+      applyFilterSortSearchAndRebuild();
+    });
+  });
+
+  searchInput.addEventListener("input", () => {
+    currentSearch = searchInput.value;
+    applyFilterSortSearchAndRebuild();
+  });
+
+  sortSelect.addEventListener("change", () => {
+    currentSort = sortSelect.value;
+    applyFilterSortSearchAndRebuild();
+  });
+
+  // Initial build
+  applyFilterSortSearchAndRebuild();
+  updateSummary();
+
+  // Only update the DOM items in place – no re-sorting in the interval
+  setInterval(() => {
+    document.querySelectorAll(".clock-item").forEach(li => updateClockItem(li));
+    updateSummary(
+      focusedZoneId ? timezones.find(t => t.id === focusedZoneId) : null
+    );
+  }, 1000);
+</script>
+<!-- ========================= -->
+<!-- PREMIUM MODERN LOADING UI -->
+<!-- ========================= -->
+
+<style>
+  /* Fullscreen overlay */
+  #loadingScreen {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 30% 20%, #1a2440, #050816 70%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    opacity: 1;
+    pointer-events: all;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+
+  /* Hidden state */
+  #loadingScreen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* Logo pulse */
+  .loading-logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffffff, #46b4ff);
+    box-shadow: 0 0 25px rgba(70, 180, 255, 0.8);
+    animation: pulse 2s ease-in-out infinite;
+    margin-bottom: 30px;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 25px rgba(70, 180, 255, 0.8);
+    }
+    50% {
+      transform: scale(1.15);
+      box-shadow: 0 0 45px rgba(70, 180, 255, 1);
+    }
+  }
+
+  /* Loading text */
+  .loading-text {
+    font-family: system-ui, sans-serif;
+    font-size: 18px;
+    color: #e8f4ff;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0.9;
+  }
+
+  /* Progress bar container */
+  .loading-bar {
+    width: 260px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Animated bar */
+  .loading-bar-fill {
+    position: absolute;
+    inset: 0;
+    width: 0%;
+    background: linear-gradient(90deg, #46b4ff, #8bd5ff);
+    border-radius: 999px;
+    animation: loadBar 3s ease-in-out infinite;
+  }
+
+  @keyframes loadBar {
+    0% { width: 0%; }
+    40% { width: 70%; }
+    70% { width: 100%; }
+    100% { width: 0%; }
+  }
+
+  /* Subtext */
+  .loading-sub {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #8b93b8;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+</style>
+
+<div id="loadingScreen">
+  <div class="loading-logo"></div>
+  <div class="loading-text">Initializing World Clock…</div>
+  <div class="loading-bar">
+    <div class="loading-bar-fill"></div>
+  </div>
+  <div class="loading-sub">Please wait</div>
+</div>
+
+<script>
+  // Auto-hide loading screen when page is ready
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      document.getElementById("loadingScreen").classList.add("hidden");
+    }, 800); // small delay for smoothness
+  });
+</script>
+
+</body>
+</html>
