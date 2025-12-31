@@ -993,8 +993,76 @@
         />
       </div>
     </div>
+<!-- =============================== -->
+<!--   NEW YEAR COUNTDOWN BANNER    -->
+<!-- =============================== -->
+
+<style>
+  #nyBanner {
+    width: 100%;
+    padding: 14px 18px;
+    background: #0b1020;
+    color: #e8f4ff; /* everything else stays this color */
+    font-family: system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+  }
+
+  #nyCountdown {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffe066; /* ONLY the timer is yellow */
+    letter-spacing: 0.5px;
+  }
+
+  #nyBanner .line {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.3);
+    margin: 8px 0;
+  }
+
+  #nyNext {
+    font-size: 16px;
+    opacity: 0.8;
+  }
+</style>
+
+<div id="nyBanner">
+  <div id="nyCountdown">Loading…</div>
+  <div class="line"></div>
+  <div id="nyNext"></div>
+</div>
+
+<script>
+  function updateNY() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const nextYear = year + 1;
+
+    const target = new Date(`January 1, ${nextYear} 00:00:00`);
+    const diff = target - now;
+
+    const sec = Math.floor(diff / 1000) % 60;
+    const min = Math.floor(diff / 1000 / 60) % 60;
+    const hr  = Math.floor(diff / 1000 / 60 / 60) % 24;
+    const day = Math.floor(diff / 1000 / 60 / 60 / 24);
+
+    document.getElementById("nyCountdown").textContent =
+      `${day}d ${hr}h ${min}m ${sec}s`;
+
+    document.getElementById("nyNext").textContent =
+      `Next New Year: January 1, ${nextYear}`;
+  }
+
+  updateNY();
+  setInterval(updateNY, 1000);
+</script>
 
     <main class="content">
+      
       <section class="summary-panel">
         <div class="summary-header">
           <div class="summary-heading">Focused timezone</div><br>
